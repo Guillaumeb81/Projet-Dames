@@ -335,4 +335,119 @@ void print_line ( char separator_char , char fill_char )
     printf("|\n");
 }
 
+/* --Les--fonctions--pour--tester--les--prises----------------------------------------------------------------------- */
 
+/* On teste si une prise AVANT est possible. Pour les pions, on est limité aux options AVANT-GAUCHE et AVANT-DROITE.
+   Une dame peut se diriger sur les 4 axes AVANT-GAUCHE, AVANT-DROITE, ARRIERE-GAUCHE ou ARRIERE-DROITE. Ceci est
+   analysée dans prise_possible_toutes. */
+
+int prise_possible_avant ( int coul )
+{
+    int prise_possible = NON; // initiation à NON
+    int li = 0, co = 0; // initiation des variables pour le parcour du tableau
+
+    // pour chaque pions et dames de la coul et tant que aucune prise possible
+    while((! prise_possible) && li < N ) {
+        if( est_pion(li, co, coul)  ) { // si pion de couleur coul et possibilité d'avancer
+
+            // avant gauche
+            if( prise_possible_case(li, co, coul, AVANT, GAUCHE) == 1)
+                prise_possible = OUI;
+
+                // avant droite
+            else if( prise_possible_case(li, co, coul, AVANT, DROITE) == 1)
+                prise_possible = OUI;
+        }
+
+        else if( est_dame(li, co, coul) )// si dame de couleur coul
+            if( prise_possible_toutes(li, co, coul) )
+                prise_possible= OUI;
+
+        if(co == N-1) {    // on passe à la ligne suivante si on a parcouru toutes les colonnes
+            ++li;
+            co = 0;
+        } else
+            ++co;
+    }
+
+    // return NON ou Distance si OUI
+    return prise_possible;
+}
+
+/* On teste toutes les possibités de prise à partir du point de départ. */
+
+int prise_possible_toutes ( int li , int co , int coul )
+{
+    int prise_possible; // initialisation à NON
+
+    // avant gauche
+    prise_possible = prise_possible_case(li, co, coul, AVANT, GAUCHE);
+
+    // avant droite
+    if( prise_possible == NON )
+        prise_possible = prise_possible_case(li, co, coul, AVANT, DROITE);
+
+    // arrière gauche
+    if( prise_possible == NON )
+        prise_possible = prise_possible_case(li, co, coul, ARRIERE, GAUCHE);
+
+    // arrière droite
+    if( prise_possible == NON )
+        prise_possible = prise_possible_case(li, co, coul, ARRIERE, DROITE);
+
+    return prise_possible;
+}
+
+
+int prise_possible_case ( int li , int co , int coul , int sens , int direct )
+{
+    int dist = 1;
+    int piece_trouvee = NON;        // initialisation à NON
+    int prise_possible = NON;       // initialisation à NON
+    int ligne_obs = li+dist*coul*sens;
+    int colonne_obs = co+dist*coul*direct;
+
+    while( (! piece_trouvee) &&
+           ligne_obs < N && ligne_obs >= 0 &&
+           colonne_obs < N && colonne_obs >= 0 )  // tant que aucune pièce trouvée et reste dans le tableau
+    {
+        if( cases_vides(li, co, dist, coul, sens, direct) == NON) {          // si on detecte une pièce
+            piece_trouvee = OUI;
+            if (est_piece(ligne_obs, colonne_obs, coul * (-1))) {              // si piece ennemie
+                if (cases_vides(ligne_obs, colonne_obs, 1, coul, sens, direct)) { // si la case derrière la pièce est vide
+                    prise_possible = dist;
+                }
+            }
+        }
+
+        ++dist;
+        ligne_obs = li+dist*coul*sens;
+        colonne_obs = co+dist*coul*direct;
+    }
+
+    return prise_possible;
+}
+
+/* --Le--test--de--cases--vides-------------------------------------------------------------------------------------- */
+
+int cases_vides ( int li , int co , int num , int coul , int sens , int direct )
+{
+    int nb_cases_vides = 0;
+    int case_vide = OUI;
+    int cpt_cases = 1;
+
+    if( (li + num*coul*sens >= N || li + num*coul*sens < 0) ||
+        ( co + num*coul*direct >= N || co + num*coul*direct < 0 )) // test debordement
+        case_vide = NON;
+
+    else
+        while( case_vide && nb_cases_vides < num) {
+            if( T[li + cpt_cases*coul*sens][co + cpt_cases*coul*direct] == RIEN )
+                ++nb_cases_vides;
+            else
+                case_vide = NON;
+
+            ++cpt_cases;
+        }
+    return case_vide;
+}
