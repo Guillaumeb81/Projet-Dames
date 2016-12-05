@@ -267,3 +267,72 @@ int est_piece ( int li , int co , int coul )
 
 
 
+
+/* --Les--fonctions--d--impression--de--l--échiquier----------------------------------------------------------------- */
+
+/* L'impression de l'échiquier est faite à l'aide de print_echiquier */
+void print_echiquier ( void )
+{
+    int i;
+    print_line('+', '-');
+
+
+    for(i = (N-1); i >= 0; i--){				//boucle d'affichage des lignes, de manière décroissante
+        print_echiquier_ligne(i);
+
+    }
+    printf("   ");
+
+    for(i = 0; i < N; i++) printf("   %d  ", i);		//affichage du numéro des colonnes
+
+    printf("\n\n");
+}
+
+
+void print_echiquier_ligne ( int li )
+{
+    print_line('|', ' ');					//affichage de la ligne avec mise en forme...
+    print_echiquier_colonnes(li);
+    print_line('|', ' ');
+    print_line('+', '-');
+}
+
+
+void print_echiquier_colonnes ( int li )
+{
+    int j;
+    printf(" %d ", li);							//numéro de la ligne
+
+    for(j = 0; j < N; j++){						//affichage de b, n, B, N ou rien selon la valeur
+        printf("| ");
+
+        if(T[li][j] == PionBL) printf(" b ");
+        else if(T[li][j] == PionNO) printf(" n ");
+        else if(T[li][j] == DameBL) printf(" B ");
+        else if(T[li][j] == DameNO) printf(" N ");
+        else printf("   ");
+
+        printf(" ");
+    }
+    printf("|\n");								//bordure de fin
+}
+
+
+void print_line ( char separator_char , char fill_char )
+{
+    int i, j;
+    printf("   |");							//première bordure "|"
+
+    for(i = 0; i < (N-1); i++){
+        for(j = 0; j < 5; j++)
+            printf("%c", fill_char);		//toutes les cases sauf la dernière
+        printf("%c", separator_char);
+    }
+
+    for(j = 0; j < 5; j++)
+        printf("%c", fill_char);			//dernière case et bordure de fin
+
+    printf("|\n");
+}
+
+
