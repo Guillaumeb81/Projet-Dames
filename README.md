@@ -13,7 +13,7 @@ Les regles de jeu considerees sont les suivantes :
     Ceci est une simplification par rapport a la regle classique du ”souffler n’est pas jouer”.
     
 Le programme propose met en place un parcours exhaustif sous forme de minimax
-sans aucune optimisation du type alpha-beta. L’´evaluation d’une situation finale
+sans aucune optimisation du type alpha-beta. L'evaluation d’une situation finale
 est rudimentaire et se limite au d´ecompte des pieces dans l’un et l’autre des camps,
 sans tenir compte de la fragilite potentielle de certaines pieces. La partie est terminee
 lorsqu’un camp n’a plus de pieces ou ne peut plus faire de mouvements.
