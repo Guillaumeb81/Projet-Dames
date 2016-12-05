@@ -196,3 +196,74 @@ void main_test_prise ( void )
     (void)printf( "\n\n" ) ;
 }
 
+
+/* --Les--fonctions--de--remplissage--------------------------------------------------------------------------------- */
+
+void remplis_echiquier ( void )
+{
+    int i, j;
+
+    for(i = 0; i < ((N/2)-1); i++){					//Mise en place des pions blancs
+        for(j = 0; j < N; j++){
+            if((i+j)%2 == 0)
+                remplis_case(i, j, PionBL);
+            else
+                remplis_case(i, j, RIEN);
+        }
+    }
+
+    for(i = ((N/2)+1); i < N; i++){					//Mise en place des pions noirs
+        for(j = 0; j < N; j++){
+            if((i+j)%2 == 0)
+                remplis_case(i, j, PionNO);
+            else
+                remplis_case(i, j, RIEN);
+        }
+    }
+}
+
+/* La fonction qui modifie une case de l'échiquier */
+
+void remplis_case ( int li , int co , int piece )
+{T[ li ][ co ] = piece ;
+}
+
+/* Ici, on compte le nombre de pièces de la couleur donnée. Chaque dame est créditée d'un bonus BonusDame. */
+
+int compte_pieces ( int coul )
+{
+    int li, co;
+    int cpt = 0;
+
+    //parcours du damier
+    for(li = 0; li < N; ++li ) {
+        for(co = 0; co < N; ++co) {
+            if(est_piece(li, co, coul)) {
+                if(est_dame(li, co, coul))
+                    cpt += BonusDame;
+                else // pour un pion
+                    cpt++;
+            }
+        }
+    }
+
+    return cpt;
+}
+
+/* --Des--fonctions--auxiliaires------------------------------------------------------------------------------------- */
+
+/* Ces prédicats disent si, oui ou non, on a affaire à une dame, un pion ou une pièce de la couleur indiquée. */
+int est_dame ( int li , int co , int coul )
+{return( T[ li ][ co ] * coul == 2 ) ;
+}
+
+int est_pion ( int li , int co , int coul )
+{return( T[ li ][ co ] * coul == 1 ) ;
+}
+
+int est_piece ( int li , int co , int coul )
+{return( T[ li ][ co ] * coul > 0 ) ;
+}
+
+
+
