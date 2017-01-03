@@ -536,7 +536,34 @@ int cherche_depl_avec_prise ( int li , int co , int piece , int coul , int numBL
 
 int effectue_depl_avec_prise ( int li , int co , int piece , int coul , int lipr , int copr , int liar , int coar ,
                                int numBL , int numNO , int prof , int minmax , int num_mouv , tmm m[ PROF ][ PRISE ] )
-    { . . .
+    {  
+
+    // deplacement
+        T[li][co] = RIEN;
+        T[liar][coar] = piece;
+
+    // prise, suppression de la piece ciblée
+        T[lipr][copr] = RIEN;
+      
+    // promotion dame
+        if( piece*coul == 1 && coar == (coul == BLANC ? N-1 : 0) )  {// si un pion arrive sur la derniere ligne adverse
+            T[liar][coar] = (coul == BLANC ? DameBL : DameNO);
+            piece = T[liar][coar];
+        }
+        
+
+    // decompte des pièces coul
+        numBL = compte_pieces(BLANC);
+    // decompte des pièces adverses
+        numNO = compte_pieces(NOIR);
+        
+    // recherche d'autres prises possibles
+        cherche_depl_avec_prise(liar, coar, piece, coul, numBL, numNO, prof, minmax, num_mouv+1 , NON , m)
+
+    // relance du minmax
+        minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
+       
+        return minmax;
     }
 
 /* --La--recherche--des--deplacements--sans--prise------------------------------------------------------------------- */
@@ -597,7 +624,33 @@ int cherche_depl_dame_sans_prise ( int li , int co , int coul , int numBL ,
 
 int effectue_depl_sans_prise ( int li , int co , int piece , int coul , int liar , int coar ,
                                int numBL , int numNO , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
-    {
+    { 
+        int changement = NON; // booleen, devient vrai si le decompte doit subir une modification
+
+        // deplacement
+        T[li][co] = RIEN;
+        T[liar][coar] = piece;
+      
+        // promotion dame
+        if( piece*coul == 1 && coar == (coul == BLANC ? N-1 : 0) ) { // si un pion arrive sur la derniere ligne adverse
+            T[liar][coar] = (coul == BLANC ? DameBL : DameNO);
+            changement = OUI;   
+        }
+
+        // decompte des pièces coul
+        if(changement) {
+            if(coul == BLANC)
+                numBL = compte_pieces(coul);
+            else // noir
+                numNO = compte_pieces(coul);
+        }
+        // pieces adverses non modifiées
+        
+        // pas de nouveaux deplacements
+
+        // relance du minmax
+        minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
        
+        return minmax;
     }
 
