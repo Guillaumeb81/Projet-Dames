@@ -54,8 +54,7 @@ typedef struct
     int lipr ;
     int copr ;
     int piecepr ;
-}
-        tmm ;
+}  tmm ;
 
 /* --Les--variables--globales---------------------------------------------------------------------------------------- */
 
@@ -86,7 +85,6 @@ void main_petit_test ( int prof ) ;
 void remplis_echiquier ( void ) ;
 inline void remplis_case ( int li , int co , int piece ) ;
 int compte_pieces ( int coul ) ;
-
 inline int est_dame ( int li , int co , int coul ) ;
 inline int est_pion ( int li , int co , int coul ) ;
 inline int est_piece ( int li , int co , int coul ) ;
@@ -116,6 +114,7 @@ void print_mouv ( tmm m[ PRISE ] , int indent ) ;
 int prise_possible_avant ( int coul ) ;
 int prise_possible_toutes ( int li , int co , int coul ) ;
 int prise_possible_case ( int li , int co , int coul , int sens , int direct ) ;
+int cases_vides ( int li , int co , int num , int coul , int sens , int direct );
 
 void itere_jeu ( int coul_ordinateur , int prof ) ;
 int suite_ou_pas ( void ) ;
@@ -146,7 +145,9 @@ int effectue_depl_sans_prise ( int lidp , int codp , int piece , int coul , int 
 
 int main ( int argc , char * argv[ ] )
 {
-    main_test_prise( ) ;
+    N = 10 ;
+    //main_test_prise( ) ;
+    main_bouge_avec_prise();
     return 0;
 }
 
@@ -194,6 +195,111 @@ void main_test_prise ( void )
     (void)printf( "Prises possibles pour les blancs : %d\n" , prise_possible_avant( BLANC ) ) ;
     (void)printf( "Prises possibles pour les noirs : %d\n" , prise_possible_avant( NOIR ) ) ;
     (void)printf( "\n\n" ) ;
+}
+
+void main_bouge_sans_prise ( void )
+{assert( N == 10 ) ;
+    Verbeux_mouvements = OUI ;
+    remplis_echiquier( ) ;
+    remplis_case( 3 , 3 , DameBL ) ;
+    remplis_case( 2 , 2 , RIEN ) ;
+    remplis_case( 1 , 1 , RIEN ) ;
+    remplis_case( 0 , 0 , RIEN ) ;
+    remplis_case( 6 , 0 , RIEN ) ;
+    remplis_case( 3 , 1 , RIEN ) ;
+    remplis_case( 2 , 0 , RIEN ) ;
+    remplis_case( 6 , 4 , DameNO ) ;
+    remplis_case( 7 , 3 , RIEN ) ;
+    remplis_case( 2 , 6 , RIEN ) ;
+    remplis_case( 8 , 0 , PionBL ) ;
+    remplis_case( 9 , 1 , RIEN ) ;
+    remplis_case( 1 , 9 , PionNO ) ;
+    remplis_case( 0 , 8 , RIEN ) ;
+    assert( ! prise_possible_avant( BLANC ) && ! prise_possible_avant( NOIR ) ) ;
+    print_echiquier( ) ;
+    (void)printf( "\n\nTests des mouvements sans prise\n\n" ) ;
+    (void)printf( "Mouvements possibles pour les blancs : \n\n" ) ;
+    (void)minimax_call( 1 , BLANC ) ;
+    print_mouvement( 1 , 0 ) ;
+    print_echiquier( ) ;
+    (void)printf( "\nMouvements possibles pour les noirs : \n\n" ) ;
+    (void)minimax_call( 1 , NOIR ) ;
+    print_mouvement( 1 , 0 ) ;
+    (void)printf( "\n\n" ) ;
+    Verbeux_mouvements = NON ;
+}
+
+
+void main_bouge_sans_prise_prof_deux ( void )
+{assert( N == 10 ) ;
+    Verbeux_mouvements = OUI ;
+    Verbeux_mouvements_indent = OUI ;
+    remplis_echiquier( ) ;
+    remplis_case( 0 , 2 , RIEN ) ;
+    remplis_case( 1 , 3 , RIEN ) ;
+    remplis_case( 2 , 4 , DameBL ) ;
+    remplis_case( 2 , 6 , RIEN ) ;
+    remplis_case( 3 , 3 , RIEN ) ;
+    remplis_case( 3 , 9 , RIEN ) ;
+    remplis_case( 3 , 7 , RIEN ) ;
+    remplis_case( 4 , 0 , PionBL ) ;
+    remplis_case( 6 , 0 , RIEN ) ;
+    remplis_case( 6 , 2 , RIEN ) ;
+    remplis_case( 6 , 6 , RIEN ) ;
+    remplis_case( 7 , 5 , DameNO ) ;
+    remplis_case( 8 , 0 , RIEN ) ;
+    remplis_case( 8 , 6 , RIEN ) ;
+    assert( ! prise_possible_avant( BLANC ) && ! prise_possible_avant( NOIR ) ) ;
+    print_echiquier( ) ;
+    (void)printf( "\n\nTests de deux mouvements sans prise\n\n" ) ;
+    (void)printf( "Mouvements possibles pour les blancs : \n\n" ) ;
+    (void)minimax_call( 2 , BLANC ) ;
+    print_mouvement( 2 , 0 ) ;
+    print_mouvement( 1 , 5 ) ;
+    print_echiquier( ) ;
+    (void)printf( "\nMouvements possibles pour les noirs : \n\n" ) ;
+    Verbeux_minimax = 1 ;
+    (void)minimax_call( 2 , NOIR ) ;
+    print_mouvement( 2 , 0 ) ;
+    print_mouvement( 1 , 5 ) ;
+    Verbeux_minimax = 0 ;
+    (void)printf( "\n\n" ) ;
+    Verbeux_mouvements = NON ;
+    Verbeux_mouvements_indent = NON ;
+}
+
+void main_bouge_avec_prise ( void )
+{assert( N == 10 ) ;
+    Verbeux_mouvements = OUI ;
+    remplis_echiquier( ) ;
+    remplis_case( 4 , 2 , PionNO ) ;
+    print_echiquier( ) ;
+    (void)printf( "\n\nTests des mouvements avec prise\n\n" ) ;
+    (void)printf( "Mouvements possibles pour les blancs : \n\n" ) ;
+    (void)minimax_call( 1 , BLANC ) ;
+    print_mouvement( 1 , 0  ) ;
+    remplis_case( 3 , 3 , RIEN ) ;
+    remplis_case( 7 , 5 , RIEN ) ;
+    print_echiquier( ) ;
+    (void)minimax_call( 1 , BLANC ) ;
+    print_mouvement( 1 , 0 ) ;
+    remplis_case( 9 , 3 , RIEN ) ;
+    print_echiquier( ) ;
+    (void)minimax_call( 1 , BLANC ) ;
+    print_mouvement( 1 , 0 ) ;
+    remplis_case( 2 , 4 , RIEN ) ;
+    remplis_case( 0 , 2 , RIEN ) ;
+    remplis_case( 2 , 0 , RIEN ) ;
+    print_echiquier( ) ;
+    Verbeux_minimax = 1 ;
+    Verbeux_mouvements_indent = OUI ;
+    (void)minimax_call( 2 , BLANC ) ;
+    print_mouvement( 2 , 0 ) ;
+    print_mouvement( 1 , 5 ) ;
+    (void)printf( "\n\n" ) ;
+    Verbeux_minimax = 0 ;
+    Verbeux_mouvements = NON ;
+    Verbeux_mouvements_indent = NON ;
 }
 
 
@@ -266,6 +372,49 @@ int est_piece ( int li , int co , int coul )
 }
 
 
+/* --Des--fonctions--auxiliaires--de--mémorisation------------------------------------------------------------------- */
+
+void memo_local ( int tdepl , int prof , int index , int li , int co , int piece ,
+                  int liar , int coar , int piecear , int lipr , int copr , int piecepr )
+{assert( index + 1 < PRISE ) ;
+    memo( Memo_local[ prof - 1 ] , tdepl , index , li , co , piece ,
+          liar , coar , piecear , lipr , copr , piecepr ) ;
+}
+
+void memo ( tmm m[ PRISE ] , int tdepl , int index , int li , int co , int piece ,
+            int liar , int coar , int piecear , int lipr , int copr , int piecepr )
+{m[ index ].tdepl = tdepl ;
+    m[ index ].li = li ;
+    m[ index ].co = co ;
+    m[ index ].piece = piece ;
+    m[ index ].liar = liar ;
+    m[ index ].coar = coar ;
+    m[ index ].piecear = piecear ;
+    m[ index ].lipr = lipr ;
+    m[ index ].copr = copr ;
+    m[ index ].piecepr = piecepr ;
+    m[ index + 1 ].tdepl = AUCUN_MOUV ;
+}
+
+
+
+void enregistre_alea ( int reset , int prof , tmm to_memo[ PROF ][ PRISE ] , tmm from_memo[ PROF ][ PRISE ]  )
+{if ( reset )
+        Memo_num = 1 ;
+    else
+        Memo_num++ ;
+    if ( ( rand( ) % Memo_num ) == 0 )
+    {memcpy( to_memo , from_memo ,  ( prof - 1 ) * PRISE * sizeof( tmm ) ) ;
+        memcpy( to_memo[ prof - 1 ] , Memo_local[ prof - 1 ] , PRISE * sizeof( tmm ) ) ;
+    }
+}
+
+
+void annule_mouvements ( tmm m[ PROF ][ PRISE ] )
+{int i ;
+    for ( i = 0 ; i < PROF ; i++ )
+        m[ i ][ 0 ].tdepl = AUCUN_MOUV ;
+}
 
 
 /* --Les--fonctions--d--impression--de--l--échiquier----------------------------------------------------------------- */
@@ -333,6 +482,116 @@ void print_line ( char separator_char , char fill_char )
         printf("%c", fill_char);			//dernière case et bordure de fin
 
     printf("|\n");
+}
+
+
+void affiche ( int prise_ou_non , int li , int co , int piece , int liar , int coar , int piecear ,
+               int lipr , int copr , int piecepr , int prof )
+{
+    int i ;
+    char * texte[ 5 ] = { "La dame noire" , "Le pion noir" , "" , "Le pion blanc" , "La dame blanche" } ;
+    char * texte_bis[ 5 ] = { "dame" , "pion" , "" , "pion" , "dame" } ;
+    if ( Verbeux_mouvements_indent && prof == 1 )
+        for ( i = 0 ; i < 3 ; i++ )
+            (void)printf( " " ) ;
+    (void)printf( "%s ( %d , %d ) se déplace en ( %d , %d )" , texte[ piece + 2 ] , li , co , liar , coar ) ;
+    if ( piece != piecear )
+        (void)printf( " et devient dame" ) ;
+    if ( prise_ou_non )
+        (void)printf( " avec prise de %s en ( %d , %d )" , texte_bis[ piecepr + 2 ] , lipr , copr ) ;
+    (void)printf( "\n" ) ;
+}
+
+
+
+void print_les_mouvements ( int prof )
+{
+    int i , indent = 0 ;
+    for ( i = prof ; i > 0 ; i-- )
+    {
+        print_mouvement( i , indent ) ;
+        indent += 3 ;
+    }
+}
+
+/* Cette fonction affiche un mouvement de la séquence optimale. Dans main_bouge_avec_prise, les deux derniers appels
+
+      print_mouvement( 2 , 0 ) ;
+      print_mouvement( 1 , 5 ) ;
+
+donnent ceci, vers la fin du fichier out_main ;
+
+Le mouvement du pion blanc va
+    de ( 3 , 1 ) à ( 5 , 3 ) et prise de pion en ( 4 , 2 )
+    de ( 5 , 3 ) à ( 7 , 5 ) et prise de pion en ( 6 , 4 )
+    de ( 7 , 5 ) à ( 9 , 3 ) et prise de pion en ( 8 , 4 ) avec promotion en dame
+    de ( 9 , 3 ) à ( 5 , 7 ) et prise de pion en ( 6 , 6 )
+
+
+     Le mouvement du pion noir va
+         de ( 6 , 8 ) à ( 4 , 6 ) et prise de dame en ( 5 , 7 )
+         de ( 4 , 6 ) à ( 2 , 4 ) et prise de pion en ( 3 , 5 )
+         de ( 2 , 4 ) à ( 0 , 2 ) et prise de pion en ( 1 , 3 ) avec promotion en dame
+         de ( 0 , 2 ) à ( 2 , 0 ) et prise de pion en ( 1 , 1 )
+
+*/
+
+void print_mouvement ( int prof , int indent )
+{
+    print_mouv( Memo[ prof - 1 ] , indent ) ;
+}
+
+void print_mouv ( tmm m[ PRISE ] , int indent )
+{
+    int i, prise = 0;
+
+    for(i = 0; i < indent; ++i)
+        printf(" ");
+
+    printf("Le mouvement ");
+    if(m[0].piece == PionBL)
+        printf("du pion blanc va\n");
+
+    else if(m[0].piece == PionNO)
+        printf("du pion noir va\n");
+
+    else if(m[0].piece == DameNO)
+        printf("de la dame blanche va\n");
+
+    else if(m[0].piece == DameNO)
+        printf("de la dame noire va\n");
+
+    while(prise < PRISE && m[prise].piece != RIEN) // on sort si on a plus de mouvement avec la piece ou si fin du tableau
+    {
+
+
+        for(i = 0; i < indent; ++i)
+            printf(" ");
+        printf("    ");
+
+        printf("de ( %d , %d ) à ( %d , %d )", m[prise].li, m[prise].co, m[prise].liar, m[prise].coar);
+
+        if(m[prise].piecepr != RIEN) {
+
+            printf("et prise de\n");
+
+            if(m[prise].piecepr == DameNO || m[prise].piecepr == DameBL)
+                printf(" dame ");
+            else
+                printf(" pion ");
+            printf("en ( %d , %d )", m[prise].lipr, m[prise].copr);
+        }
+
+        if (m[prise].piece != m[prise].piecear)
+            printf(" avec promotion dame ");
+
+        printf("\n");
+        prise++;
+
+
+    }
+    printf("\n");
+
 }
 
 /* --Les--fonctions--pour--tester--les--prises----------------------------------------------------------------------- */
@@ -454,117 +713,181 @@ int cases_vides ( int li , int co , int num , int coul , int sens , int direct )
 
 
 
+/* --La--fonction--minimax--et--ses--acolytes------------------------------------------------------------------------ */
+
+
+int minimax_call ( int prof , int coul )
+{assert( prof <= PROF ) ;
+    annule_mouvements( Memo ) ;
+    return( minimax( compte_pieces( BLANC ) , compte_pieces( NOIR ) , prof , coul , Memo ) ) ;
+}
+
+
+int minimax ( int numBL , int numNO , int prof , int coul , tmm m[ PROF ][ PRISE ] )
+{if ( ! ( numBL && numNO && prof ) )
+    {if ( Verbeux_minimax )
+            (void)printf( "Minimax retourne %d\n" , numBL - numNO ) ;
+        return( numBL - numNO ) ;
+    }
+    else
+    if ( coul == BLANC )
+        return( cherche_depl( numBL , numNO , coul , prof , NeutreMAX , m ) ) ;
+    else
+        return( cherche_depl( numBL , numNO , coul , prof , NeutreMIN , m ) ) ;
+}
+
+
+int relance_minimax ( int numBL , int numNO , int coul , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
+{int resu ;
+    tmm new_memo[ PROF ][ PRISE ] ;
+    annule_mouvements( new_memo ) ;
+    resu = minimax( numBL , numNO , prof - 1 , - coul , new_memo ) ;
+    if ( coul == BLANC )
+    {if ( resu >= minmax && resu != NeutreMAX )
+            enregistre_alea( ( resu > minmax ) , prof , m , new_memo ) ;
+        if ( resu > minmax )
+            minmax = resu ;
+    }
+    else
+    {if ( resu <= minmax && resu != NeutreMIN )
+            enregistre_alea( ( resu < minmax ) , prof , m , new_memo ) ;
+        if ( resu < minmax )
+            minmax = resu ;
+    }
+    return( minmax ) ;
+}
 
 
 /* --La--recherche--des--deplacements--avec--prise------------------------------------------------------------------- */
 
 
 int cherche_depl ( int numBL , int numNO , int coul , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
-    { 
-        int li, col, piece;
-        int num_mouv = 0;
-        int seulement_avant; // booleen
-        if( prise_possible_avant(coul) ) {
-            // cherche les prises possibles pour chaque piece de la couleur coul sur l'echiquier
-            for(li = 0; li < N; ++li)
-                for(col = 0; col < N; ++col)
-                    if(est_piece(li, col, coul)) {
-                        piece = T[li][col]; 
-                            if(est_pion(li, col, coul))
-                                seulement_avant = OUI;
-                            else
-                                seulement_avant = NON;
+{
+    int li, col, piece;
+    int num_mouv = 0;
+    int seulement_avant; // booleen
+    if( prise_possible_avant(coul) ) {
+        // cherche les prises possibles pour chaque piece de la couleur coul sur l'echiquier
+        for(li = 0; li < N; ++li)
+            for(col = 0; col < N; ++col)
+                if(est_piece(li, col, coul)) {
+                    piece = T[li][col];
+                    if(est_pion(li, col, coul))
+                        seulement_avant = OUI;
+                    else
+                        seulement_avant = NON;
 
-                        minmax = cherche_depl_avec_prise(li ,col ,piece ,coul , numBL, numNO, prof, minmax ,num_mouv ,seulement_avant ,m);
-                    }
-        }
-        else { // on se deplace sans faire de prise
-            for(li = 0; li < N; ++li)
-                for(col = 0; col < N; ++col)
-                    if(est_piece(li, col, coul)) {
-                            if(est_pion(li, col, coul))
-                                minmax = cherche_depl_pion_sans_prise(li, co, coul ,numBL , numNO, prof, minmax , m);
-                            else    // c'est une dame
-                                minmax = cherche_depl_dame_sans_prise(li, co, coul ,numBL , numNO, prof, minmax , m);
-                    }
-        }
-
-        return minmax;
-
+                    minmax = cherche_depl_avec_prise(li ,col ,piece ,coul , numBL, numNO, prof, minmax ,num_mouv ,seulement_avant ,m);
+                }
     }
+    else { // on se deplace sans faire de prise
+        for(li = 0; li < N; ++li)
+            for(col = 0; col < N; ++col)
+                if(est_piece(li, col, coul)) {
+                    if(est_pion(li, col, coul))
+                        minmax = cherche_depl_pion_sans_prise(li, col, coul ,numBL , numNO, prof, minmax , m);
+                    else    // c'est une dame
+                        minmax = cherche_depl_dame_sans_prise(li, col, coul ,numBL , numNO, prof, minmax , m);
+                }
+    }
+
+    return minmax;
+
+}
 
 
 int cherche_depl_avec_prise ( int li , int co , int piece , int coul , int numBL , int numNO , int prof ,
                               int minmax , int num_mouv , int seulement_avant , tmm m[ PROF ][ PRISE ] )
-    { 
-        if(seulement_avant && piece*coul == 1)                              // c'est le premier mouv d'un pion donc on ne prends les prises que vers l'avant.
-        {
-            if(prise_possible_case(li, co, coul, AVANT, GAUCHE) == 1)
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul, co+GAUCHE*coul , li+AVANT*coul*2, 
-                                        co+GAUCHE*coul*2 , numBL, numNO, prof, minmax, num_mouv, m);
-            if(prise_possible_case(li, co, coul, AVANT, DROITE) == 1)
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul, co+DROITE*coul , li+AVANT*coul*2, 
-                                        co+DROITE*coul*2 , numBL, numNO, prof, minmax, num_mouv, m);
-        }
-        else {
-            int dist_prise;
-
-            dist_prise = prise_possible_case(li, co, coul, AVANT, GAUCHE);
-            if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))   // Si c'est une dame ou si c'est un pion qui à une prise à distance de 1
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul*dist_prise, co+GAUCHE*coul*dist_prise , li+AVANT*coul*(dist_prise+1), 
-                                        co+GAUCHE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
-
-            dist_prise = prise_possible_case(li, co, coul, AVANT, DROITE);
-            if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul*dist_prise, co+DROITE*coul*dist_prise , li+AVANT*coul*(dist_prise+1), 
-                                        co+DROITE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
-
-            dist_prise = prise_possible_case(li, co, coul, ARRIERE, GAUCHE);
-            if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+ARRIERE*coul*dist_prise, co+GAUCHE*coul*dist_prise , li+ARRIERE*coul*(dist_prise+1), 
-                                        co+GAUCHE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
-
-            dist_prise = prise_possible_case(li, co, coul, AVANT, DROITE);
-            if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
-                minmax = effectue_depl_avec_prise(li, co, piece, coul, li+ARRIERE*coul*dist_prise, co+DROITE*coul*dist_prise , li+ARRIERE*coul*(dist_prise+1), 
-                                        co+DROITE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
-        }
-
-        return minmax;
+{
+    if(seulement_avant && piece*coul == 1)                              // c'est le premier mouvement d'un pion donc on ne prend les prises que vers l'avant.
+    {
+        // Deplacement avec prise vers la case AVANT GAUCHE
+        if(prise_possible_case(li, co, coul, AVANT, GAUCHE) == 1)
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul, co+GAUCHE*coul , li+AVANT*coul*2,
+                                              co+GAUCHE*coul*2 , numBL, numNO, prof, minmax, num_mouv, m);
+        // Deplacement avec prise vers la case AVANT DROITE
+        if(prise_possible_case(li, co, coul, AVANT, DROITE) == 1)
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul, co+DROITE*coul , li+AVANT*coul*2,
+                                              co+DROITE*coul*2 , numBL, numNO, prof, minmax, num_mouv, m);
     }
+    else {                                                              // sinon c'est une dame ou un pion qui a déjà pris vers l'avant
+        int dist_prise;
+
+        // recherche de deplacement avec prise vers AVANT GAUCHE
+        dist_prise = prise_possible_case(li, co, coul, AVANT, GAUCHE);
+        if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))   // Si c'est une dame ou si c'est un pion qui à une prise à distance de 1
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul*dist_prise, co+GAUCHE*coul*dist_prise , li+AVANT*coul*(dist_prise+1),
+                                              co+GAUCHE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
+
+        // recherche de deplacement avec prise vers AVANT DROITE
+        dist_prise = prise_possible_case(li, co, coul, AVANT, DROITE);
+        if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+AVANT*coul*dist_prise, co+DROITE*coul*dist_prise , li+AVANT*coul*(dist_prise+1),
+                                              co+DROITE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
+
+        // recherche de deplacement avec prise vers ARRIERE GAUCHE
+        dist_prise = prise_possible_case(li, co, coul, ARRIERE, GAUCHE);
+        if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+ARRIERE*coul*dist_prise, co+GAUCHE*coul*dist_prise , li+ARRIERE*coul*(dist_prise+1),
+                                              co+GAUCHE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
+
+        // recherche de deplacement avec prise vers ARRIERE DROITE
+        dist_prise = prise_possible_case(li, co, coul, ARRIERE, DROITE);
+        if(dist_prise > 0 && ( (piece*coul==2) || (dist_prise == 1) ))
+            minmax = effectue_depl_avec_prise(li, co, piece, coul, li+ARRIERE*coul*dist_prise, co+DROITE*coul*dist_prise , li+ARRIERE*coul*(dist_prise+1),
+                                              co+DROITE*coul*(dist_prise+1) , numBL, numNO, prof, minmax, num_mouv, m);
+    }
+
+    return minmax;
+}
 
 
 int effectue_depl_avec_prise ( int li , int co , int piece , int coul , int lipr , int copr , int liar , int coar ,
                                int numBL , int numNO , int prof , int minmax , int num_mouv , tmm m[ PROF ][ PRISE ] )
-    {  
+{
+    int oldPiece = piece; // sauvegarde l'ancienne valeur de la piece.
+    int piecepr = T[lipr][copr];
 
-    // deplacement
-        T[li][co] = RIEN;
-        T[liar][coar] = piece;
+    // supprime la case de départ
+    T[li][co] = RIEN;
 
     // prise, suppression de la piece ciblée
-        T[lipr][copr] = RIEN;
-      
+    T[lipr][copr] = RIEN;
+
     // promotion dame
-        if( piece*coul == 1 && coar == (coul == BLANC ? N-1 : 0) )  {// si un pion arrive sur la derniere ligne adverse
-            T[liar][coar] = (coul == BLANC ? DameBL : DameNO);
-            piece = T[liar][coar];
-        }
-        
+    if( piece*coul == 1 && liar == (coul == BLANC ? N-1 : 0) )  {// si un pion arrive sur la derniere ligne adverse
+        piece = (coul == BLANC ? DameBL : DameNO);
+    }
+    // remplis la case où la pièce arrive
+    remplis_case (liar, coar ,piece);
 
     // decompte des pièces coul
-        numBL = compte_pieces(BLANC);
+    numBL = compte_pieces(BLANC);
     // decompte des pièces adverses
-        numNO = compte_pieces(NOIR);
-        
+    numNO = compte_pieces(NOIR);
+
+    // stocke le mouvement dans memo local
+    memo_local(MOUV_AVEC_PRISE , prof , num_mouv, li, co, oldPiece, liar, coar, piece, lipr, copr, piecepr);
+
+    // affiche le mouvement si on le lui a demandé
+    if(Verbeux_mouvements && prof < 2)
+        affiche(MOUV_AVEC_PRISE, li, co, oldPiece, liar, coar, piece, lipr ,copr, piecepr, prof);
+
     // recherche d'autres prises possibles
-        cherche_depl_avec_prise(liar, coar, piece, coul, numBL, numNO, prof, minmax, num_mouv+1 , NON , m)
+    minmax = cherche_depl_avec_prise(liar, coar, piece, coul, numBL, numNO, prof, minmax, num_mouv+1 , NON , m);
 
     // relance du minmax
-        minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
-       
-        return minmax;
-    }
+    minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
+
+
+
+    // retablit le damier initial
+    remplis_case (li, co ,oldPiece);
+    T[lipr][copr] = piecepr;
+    T[liar][coar] = RIEN;
+
+    return minmax;
+}
 
 /* --La--recherche--des--deplacements--sans--prise------------------------------------------------------------------- */
 
@@ -574,83 +897,111 @@ int effectue_depl_avec_prise ( int li , int co , int piece , int coul , int lipr
 
 int cherche_depl_pion_sans_prise ( int li , int co , int coul , int numBL ,
                                    int numNO , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
-    {  
-        int piece = T[li][co]; 
-        if(cases_vides(li, co, 1, coul, AVANT, DROITE))
-            minmax = effectue_depl_sans_prise( li, co, piece, coul, li+AVANT*coul, co+DROITE*coul, numBL, numNO, prof, minmax , m);
+{
+    int piece = T[li][co];
 
-        if(cases_vides(li, co, 1, coul, AVANT, GAUCHE))
-            minmax = effectue_depl_sans_prise( li, co, piece, coul, li+AVANT*coul, co+GAUCHE*coul, numBL, numNO, prof, minmax , m);
+    // Deplacement sans prise vers la case AVANT DROITE
+    if(cases_vides(li, co, 1, coul, AVANT, DROITE))
+        minmax = effectue_depl_sans_prise( li, co, piece, coul, li+AVANT*coul, co+DROITE*coul, numBL, numNO, prof, minmax , m);
 
-        return minmax;
-    }
+    // Deplacement sans prise vers la case AVANT GAUCHE
+    if(cases_vides(li, co, 1, coul, AVANT, GAUCHE))
+        minmax = effectue_depl_sans_prise( li, co, piece, coul, li+AVANT*coul, co+GAUCHE*coul, numBL, numNO, prof, minmax , m);
+
+    return minmax;
+}
 
 
 int cherche_depl_dame_sans_prise ( int li , int co , int coul , int numBL ,
                                    int numNO , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
-    { 
-        int dist = 0; // initialise dist
+{
+    int dist = 0; // initialise dist
+    int piece = T[li][co];
 
-        while(case_vide(li ,co , dist+1, coul, AVANT , GAUCHE))
-            dist++;
-        if(dist_prise > 0)   // Si c'est une dame ou si c'est un pion qui à une prise à distance de 1-
-            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+AVANT*coul*dist, co+GAUCHE*coul*dist, numBL, numNO, prof, minmax, num_mouv, m);
-
-        dist = 0; // initialise dist
-
-        while(case_vide(li ,co , dist+1, coul, AVANT , DROITE))
-            dist++;
+    // recherche de deplacement sans prise vers AVANT GAUCHE pour chaque case vide
+    while(cases_vides(li ,co , dist+1, coul, AVANT , GAUCHE)) {
+        dist++;
         if(dist > 0)
-            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+AVANT*coul*dist, co+DROITE*coul*dist, numBL, numNO, prof, minmax, num_mouv, m);
-
-        dist = 0; // initialise dist
-
-        while(case_vide(li ,co , dist+1, coul, ARRIERE , GAUCHE))
-            dist++;
-        if(dist_prise > 0)
-            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+ARRIERE*coul*dist, co+GAUCHE*coul*dist, numBL, numNO, prof, minmax, num_mouv, m);
-
-        dist = 0; // initialise dist
-
-        while(case_vide(li ,co , dist+1, coul, ARRIERE , DROITE))
-            dist++;
-        if(dist_prise > 0)
-            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+ARRIERE*coul*dist, co+DROITE*coul*dist, numBL, numNO, prof, minmax, num_mouv, m);
-
-
-        return minmax;
+            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+AVANT*coul*dist, co+GAUCHE*coul*dist, numBL, numNO, prof, minmax, m);
     }
+
+    dist = 0; // initialise dist
+
+    // recherche de deplacement sans prise vers AVANT DROITE pour chaque case vide
+    while(cases_vides(li ,co , dist+1, coul, AVANT , DROITE)) {
+        dist++;
+        if(dist > 0)
+            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+AVANT*coul*dist, co+DROITE*coul*dist, numBL, numNO, prof, minmax, m);
+    }
+
+    dist = 0; // initialise dist
+
+    // recherche de deplacement sans prise vers ARRIERE GAUCHE pour chaque case vide
+    while(cases_vides(li ,co , dist+1, coul, ARRIERE , GAUCHE)) {
+        dist++;
+        if(dist > 0)
+            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+ARRIERE*coul*dist, co+GAUCHE*coul*dist, numBL, numNO, prof, minmax,m);
+    }
+
+    dist = 0; // initialise dist
+
+    // recherche de deplacement sans prise vers ARRIERE DROITE pour chaque case vide
+    while(cases_vides(li ,co , dist+1, coul, ARRIERE , DROITE)) {
+        dist++;
+        if(dist > 0)
+            minmax = effectue_depl_sans_prise(li, co, piece, coul, li+ARRIERE*coul*dist, co+DROITE*coul*dist, numBL, numNO, prof, minmax, m);
+    }
+
+
+    return minmax;
+}
 
 
 int effectue_depl_sans_prise ( int li , int co , int piece , int coul , int liar , int coar ,
                                int numBL , int numNO , int prof , int minmax , tmm m[ PROF ][ PRISE ] )
-    { 
-        int changement = NON; // booleen, devient vrai si le decompte doit subir une modification
+{
+    int changement = NON; // booleen, devient vrai si le decompte doit subir une modification
+    int oldPiece = piece;
 
-        // deplacement
-        T[li][co] = RIEN;
-        T[liar][coar] = piece;
-      
-        // promotion dame
-        if( piece*coul == 1 && coar == (coul == BLANC ? N-1 : 0) ) { // si un pion arrive sur la derniere ligne adverse
-            T[liar][coar] = (coul == BLANC ? DameBL : DameNO);
-            changement = OUI;   
-        }
+    // deplacement
+    T[li][co] = RIEN;
 
-        // decompte des pièces coul
-        if(changement) {
-            if(coul == BLANC)
-                numBL = compte_pieces(coul);
-            else // noir
-                numNO = compte_pieces(coul);
-        }
-        // pieces adverses non modifiées
-        
-        // pas de nouveaux deplacements
-
-        // relance du minmax
-        minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
-       
-        return minmax;
+    // promotion dame
+    if( piece*coul == 1 && liar == (coul == BLANC ? N-1 : 0) ) { // si un pion arrive sur la derniere ligne adverse
+        piece = (coul == BLANC ? DameBL : DameNO);
+        changement = OUI;
     }
+
+    T[liar][coar] = piece;
+
+    // decompte des pièces coul
+    if(changement) {
+        if(coul == BLANC)
+            numBL = compte_pieces(coul);
+        else // noir
+            numNO = compte_pieces(coul);
+    }
+    // pieces adverses non modifiées
+
+
+    // stocke le mouvement dans memo local
+    memo_local(MOUV_SANS_PRISE, prof , 0, li, co, oldPiece, liar, coar, piece, RIEN, RIEN, RIEN); // QUE FAUT IL METTRE DANS LIPR ET COPR QUAND PAS DE PRISE!!!!!
+
+
+    // affiche le mouvement si on le lui a demandé
+    if(Verbeux_mouvements && prof < 2)
+        affiche(MOUV_SANS_PRISE, li, co, oldPiece, liar, coar, piece, RIEN ,RIEN, RIEN, prof);
+
+
+    // pas de nouveaux deplacements
+
+    // relance du minmax
+    minmax = relance_minimax(numBL ,numNO ,coul ,prof ,minmax ,m);
+
+    // retablit l'ancien damier
+    remplis_case (li, co ,oldPiece);
+    T[liar][coar] = RIEN;
+
+    return minmax;
+}
 
