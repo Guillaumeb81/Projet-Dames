@@ -417,6 +417,42 @@ void annule_mouvements ( tmm m[ PROF ][ PRISE ] )
 }
 
 
+/* --Les--fonctions--de--mouvements--sur--l--échiquier--------------------------------------------------------------- */
+
+/* joue_sequence joue les mouvements de profdeb jusqu'à proffin comprise. Bien-sûr, profdeb >= proffin. */
+void joue_sequence ( int profdeb , int proffin )
+{
+    assert(profdeb >= proffin);
+
+    int i;
+    for(i = profdeb ; i >= proffin ; --i) {
+        joue_mouvements(Memo[i]);
+    }
+}
+
+/* joue_mouvements déroule les mouvements consécutifs d'une pièce. Il n'y a aucun contrôle effectué, car on suppose
+   ici que ce contrôle a été fait au préalable. */
+
+void joue_mouvements ( tmm m[ PRISE ] )
+{int i ;
+    for ( i = 0 ; m[ i ].tdepl != AUCUN_MOUV ; i++ )
+        joue_mouv( m[ i ] ) ;
+}
+
+void joue_mouv ( tmm m )
+{
+
+    remplis_case(m.li, m.co, RIEN);
+    remplis_case(m.liar, m.coar, m.piecear);
+    if( m.tdepl == MOUV_AVEC_PRISE)
+        remplis_case(m.lipr, m.copr, RIEN);
+
+    if(Verbeux_mouvements)
+        affiche(m.tdepl, m.li, m.co, m.piece, m.liar, m.coar, m.piece, m.lipr ,m.copr, m.piecepr, RIEN);
+
+}
+
+
 /* --Les--fonctions--d--impression--de--l--échiquier----------------------------------------------------------------- */
 
 /* L'impression de l'échiquier est faite à l'aide de print_echiquier */
@@ -712,6 +748,150 @@ int cases_vides ( int li , int co , int num , int coul , int sens , int direct )
 }
 
 
+/* --La--boucle--de--jeu--principale--------------------------------------------------------------------------------- */
+
+/* itere_jeu déroule le jeu. */
+
+void itere_jeu ( int coul_ordinateur , int prof )
+{int minmax , cont = OUI , couleur = BLANC , depart , arrivee , ok , num_mouv , prise_ou_pas ;
+    int suite , lisuite , cosuite ;
+    tmm depl[ PRISE ] ;
+    char * texte[ 3 ] = { "NOIRS" , "" , "BLANCS" } ;
+    remplis_echiquier( ) ;
+    if ( coul_ordinateur == NOIR )
+        print_echiquier( ) ;
+    while ( cont )
+    {if ( couleur != coul_ordinateur && ! est_coince( couleur) )
+        {num_mouv = 0 ;
+            suite = NON ;
+            prise_ou_pas = prise_possible_avant( couleur ) ;
+            if ( prise_ou_pas )
+                (void)printf( "Vous devez prendre une pièce !\n" ) ;
+            do {(void)printf( "%s : Entrée sous forme 'ab cd' pour ( a , b ) vers ( c , d ) ou -1 -1 (info) :\n" ,
+                              texte[ couleur + 1 ] ) ;
+                scanf( " %d %d" , & depart , & arrivee ) ;
+                if ( depart == - 1 )
+                {(void)printf( "J'ai calculé la séquence suivante \n\n" ) ;
+                    print_les_mouvements( prof - 1 ) ;
+                    ok = NON ;
+                }
+                else
+                    ok = analyse_mouvement( depart , arrivee , prise_ou_pas , couleur , & num_mouv ,
+                                            depl , & suite , & lisuite , & cosuite ) ;
+            }
+            while ( ! ok ) ;
+            print_mouv( depl , 0 ) ;
+        }
+        couleur *= - 1 ;
+        if ( couleur != coul_ordinateur && ! est_coince( couleur ) )
+        {(void)printf( "Je calcule . . . \n" ) ;
+            minmax = minimax_call( prof , coul_ordinateur ) ;
+            (void)printf( "Je joue . . . \n\n" ) ;
+            print_mouvement( prof , 0 ) ;
+            joue_sequence( prof , prof ) ;
+        }
+        print_echiquier( ) ;
+        cont = suite_ou_pas( ) ;
+    }
+}
+
+/* On détente si la partie est terminée ou non ? */
+
+int suite_ou_pas ( void )
+{int numBL = compte_pieces( BLANC ) , numNO = compte_pieces( NOIR ) ;
+    if ( numBL == 0 || est_coince( BLANC ) )
+        (void)printf( "Les blancs perdent !\n\n" ) ;
+    if ( numNO == 0 || est_coince( NOIR ) )
+        (void)printf( "Les noirs perdent !\n\n" ) ;
+    return( numBL && numNO && ! est_coince( BLANC ) && ! est_coince( NOIR ) ) ;
+}
+
+
+
+int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int * num_mouv ,
+                        tmm depl[ PRISE ] , int * suite , int * lisuite , int * cosuite )
+{
+    int mouvement_autoriser = OUI; // init à OUI
+
+    int depLi = dep / 10;
+    int depCo = dep % 10;
+    int arrLi = arr / 10;
+    int arrCo = arr % 10;
+    // prise ?
+        //relancer processus
+    // dep et arr sur la meme diagonale
+    // les coordonnées sont sous formes xy
+
+    if ( (arrLi - depLi != arrCo - depCo) && (arrLi - depLi != -(arrCo - depCo)) )
+        // les coordonnées sont sur des diagonales différentes
+        mouvement_autoriser = NON;
+
+    // pt depart : une piece
+    if(mouvement_autoriser && T[depLi][depCo] == RIEN)
+        mouvement_autoriser = NON;
+
+    // pt arrive : libre
+    if(mouvement_autoriser && T[arrLi][arrCo] != RIEN)
+        mouvement_autoriser = NON;
+
+    // promotion vers Reine
+    int pieceArr = T[depLi][depCo];
+    if(mouvement_autoriser && T[depLi][depCo]*couleur == 1 && arrLi == (couleur == BLANC ? N-1 : 0) )  {  // si un pion arrive sur la derniere ligne adverse
+        pieceArr = (couleur == BLANC ? DameBL : DameNO);
+    }
+
+    if(mouvement_autoriser) {
+
+        // pas de prise
+        if(! prise_ou_pas) {
+            // enregistre le mouv dans memo
+            memo ( depl , MOUV_SANS_PRISE , *num_mouv , depLi , depCo , T[depLi][depCo] , arrLi , arrCo , pieceArr , RIEN , RIEN, RIEN ) ;
+
+            // effectue avec joue_mouv
+            joue_mouv(Memo[0][0]);
+
+            // Rend OUI
+        }
+
+        //prise
+        else {
+            // on teste si on continue le mouvement -> prise possible toutes
+            int newPrise = prise_possible_toutes(arrLi, arrCo, couleur);
+            // si oui on rend NON pour relancer le processus
+            if(newPrise != 0) {
+                *suite = OUI;
+                *lisuite = arrLi+newPrise;
+                *cosuite = arrCo+newPrise;
+                mouvement_autoriser = NON;
+            }
+        }
+
+    }
+    return mouvement_autoriser;
+}
+
+
+
+/* Un camp a perdu s'il ne peut plus bouger aucune pièce. */
+int est_coince ( int couleur )
+{int li , co , mouv = NON ;
+    if ( prise_possible_avant ( couleur ) )
+        return( NON ) ;
+    else
+    {for ( li = 0 ; li < N && ! mouv ; li++ )
+            for ( co = 0 ; co < N && ! mouv ; co++ )
+            {if ( li + couleur >= 0 && li + couleur < N )
+                    mouv = ( co + 1 < N && T[ li + couleur ][ co + 1 ] == 0 ) ||
+                           ( co - 1 >= 0 && T[ li + couleur ][ co - 1 ] == 0 ) ;
+                if ( est_dame( li , co , couleur ) && li - couleur >= 0 && li - couleur < N )
+                    mouv = mouv || ( co + 1 < N && T[ li - couleur ][ co + 1 ] == 0 ) ||
+                           ( co - 1 >= 0 && T[ li - couleur ][ co - 1 ] == 0 ) ;
+            }
+        return( ! mouv ) ;
+    }
+}
+
+
 
 /* --La--fonction--minimax--et--ses--acolytes------------------------------------------------------------------------ */
 
@@ -886,6 +1066,7 @@ int effectue_depl_avec_prise ( int li , int co , int piece , int coul , int lipr
     T[lipr][copr] = piecepr;
     T[liar][coar] = RIEN;
 
+
     return minmax;
 }
 
@@ -1001,6 +1182,7 @@ int effectue_depl_sans_prise ( int li , int co , int piece , int coul , int liar
     // retablit l'ancien damier
     remplis_case (li, co ,oldPiece);
     T[liar][coar] = RIEN;
+
 
     return minmax;
 }
