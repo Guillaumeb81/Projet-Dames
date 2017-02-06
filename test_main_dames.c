@@ -591,7 +591,7 @@ void print_mouv ( tmm m[ PRISE ] , int indent )
     else if(m[0].piece == PionNO)
         printf("du pion noir va\n");
 
-    else if(m[0].piece == DameNO)
+    else if(m[0].piece == DameBL)
         printf("de la dame blanche va\n");
 
     else if(m[0].piece == DameNO)
