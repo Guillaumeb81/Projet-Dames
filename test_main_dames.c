@@ -142,14 +142,41 @@ int effectue_depl_sans_prise ( int lidp , int codp , int piece , int coul , int 
 
 /* --La--fonction--principale---------------------------------------------------------------------------------------- */
 
-
 int main ( int argc , char * argv[ ] )
-{
-    N = 10 ;
-    //main_test_prise( ) ;
-    main_bouge_avec_prise();
-    return 0;
+{if ( argc <= 1 )
+    {N = 10 ;
+        main_test_prise( ) ;
+        main_bouge_sans_prise( ) ;
+        main_bouge_sans_prise_prof_deux( ) ;
+        main_bouge_avec_prise( ) ;
+        main_grand_test( 10 ) ;
+        main_petit_test( 11 ) ;
+    }
+    else
+    if ( argc == 4 )
+    {int coul_ordi , prof ;
+        char * texte[ 3 ] = { "noirs" , "" , "blancs" } ;
+        N = atoi( argv[ 1 ] ) ;
+        coul_ordi = atoi( argv[ 2 ] ) ;
+        prof = atoi( argv[ 3 ] ) ;
+        if ( coul_ordi )
+            coul_ordi = BLANC ;
+        else
+            coul_ordi = NOIR ;
+        if ( ( N == 8 || N == 10 ) && ( 0 < prof && prof < PROF ) )
+        {(void)printf( "L'échiquier est de taille %d et l'ordi joue les " , N ) ;
+            (void)printf( "%s. La profondeur de recherche est de %d.\n" , texte[ coul_ordi + 1 ] , prof ) ;
+            remplis_echiquier( ) ;
+            itere_jeu( coul_ordi , prof ) ;
+        }
+    }
+    (void)printf( "Bye !\n" ) ;
+    return( 0 ) ;
 }
+
+/* --Les--fonctions--de--test---------------------------------------------------------------------------------------- */
+
+/* Le fichier out_main contient le résultat produit par ces tests. */
 
 void main_test_prise ( void )
 {assert( N == 10 ) ;
@@ -215,7 +242,8 @@ void main_bouge_sans_prise ( void )
     remplis_case( 9 , 1 , RIEN ) ;
     remplis_case( 1 , 9 , PionNO ) ;
     remplis_case( 0 , 8 , RIEN ) ;
-    assert( ! prise_possible_avant( BLANC ) && ! prise_possible_avant( NOIR ) ) ;
+
+    assert( prise_possible_avant( BLANC ) && prise_possible_avant( NOIR ) ) ;
     print_echiquier( ) ;
     (void)printf( "\n\nTests des mouvements sans prise\n\n" ) ;
     (void)printf( "Mouvements possibles pour les blancs : \n\n" ) ;
@@ -228,7 +256,6 @@ void main_bouge_sans_prise ( void )
     (void)printf( "\n\n" ) ;
     Verbeux_mouvements = NON ;
 }
-
 
 void main_bouge_sans_prise_prof_deux ( void )
 {assert( N == 10 ) ;
@@ -249,7 +276,7 @@ void main_bouge_sans_prise_prof_deux ( void )
     remplis_case( 7 , 5 , DameNO ) ;
     remplis_case( 8 , 0 , RIEN ) ;
     remplis_case( 8 , 6 , RIEN ) ;
-    assert( ! prise_possible_avant( BLANC ) && ! prise_possible_avant( NOIR ) ) ;
+    assert( ! prise_possible_avant( BLANC ) && prise_possible_avant( NOIR ) ) ;
     print_echiquier( ) ;
     (void)printf( "\n\nTests de deux mouvements sans prise\n\n" ) ;
     (void)printf( "Mouvements possibles pour les blancs : \n\n" ) ;
@@ -300,6 +327,97 @@ void main_bouge_avec_prise ( void )
     Verbeux_minimax = 0 ;
     Verbeux_mouvements = NON ;
     Verbeux_mouvements_indent = NON ;
+}
+
+void main_grand_test ( int prof )
+{int bilan ;
+    assert( N == 10 ) ;
+    remplis_echiquier( ) ;
+    remplis_case( 4 , 2 , PionNO ) ;
+    remplis_case( 3 , 3 , RIEN ) ;
+    remplis_case( 7 , 5 , RIEN ) ;
+    remplis_case( 9 , 3 , RIEN ) ;
+    remplis_case( 2 , 4 , RIEN ) ;
+    remplis_case( 0 , 2 , RIEN ) ;
+    remplis_case( 2 , 0 , RIEN ) ;
+    print_echiquier( ) ;
+    (void)printf( "Le bilan initial effectif en pièces BLANC - NOIR est de %d\n" ,
+                  compte_pieces( BLANC ) - compte_pieces( NOIR ) ) ;
+    bilan = minimax_call( prof , BLANC ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "On effectue les 3 premiers mouvements et on recommence !\n" ) ;
+    remplis_case( 3 , 1 , RIEN ) ;
+    remplis_case( 4 , 2 , RIEN ) ;
+    remplis_case( 6 , 4 , RIEN ) ;
+    remplis_case( 8 , 4 , RIEN ) ;
+    remplis_case( 6 , 6 , RIEN ) ;
+    remplis_case( 6 , 8 , RIEN ) ;
+    remplis_case( 3 , 5 , RIEN ) ;
+    remplis_case( 1 , 3 , RIEN ) ;
+    remplis_case( 1 , 1 , RIEN ) ;
+    remplis_case( 2 , 0 , DameNO ) ;
+    remplis_case( 0 , 0 , RIEN ) ;
+    remplis_case( 1 , 1 , PionBL ) ;
+    print_echiquier( ) ;
+    (void)printf( "Le bilan initial effectif en pièces BLANC - NOIR est de %d\n" ,
+                  compte_pieces( BLANC ) - compte_pieces( NOIR ) ) ;
+    bilan = minimax_call( prof , NOIR ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+}
+
+void main_petit_test ( int prof )
+{int bilan ;
+    N = 8 ;
+    remplis_echiquier( ) ;
+    print_echiquier( ) ;
+    (void)printf( "Le bilan initial effectif en pièces BLANC - NOIR est de %d\n" ,
+                  compte_pieces( BLANC ) - compte_pieces( NOIR ) ) ;
+    bilan = minimax_call( prof , BLANC ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+    (void)printf( "Et on détermine la prochaine séquence …\n\n" ) ;
+    bilan = minimax_call( prof , NOIR ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+    (void)printf( "Et on détermine la prochaine séquence …\n\n" ) ;
+    bilan = minimax_call( prof , BLANC ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+    (void)printf( "Et on détermine la prochaine séquence …\n\n" ) ;
+    bilan = minimax_call( prof , NOIR ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+    (void)printf( "Et on détermine la prochaine séquence …\n\n" ) ;
+    bilan = minimax_call( prof , BLANC ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
+    (void)printf( "Et on détermine la prochaine séquence …\n\n" ) ;
+    bilan = minimax_call( prof , NOIR ) ;
+    print_les_mouvements( prof ) ;
+    (void)printf( "Le bilan final, avec cette séquence, en pièces BLANC - NOIR est de %d\n\n" , bilan ) ;
+    (void)printf( "A jouer cette séquence, le nouvel échiquier sera :\n\n" ) ;
+    joue_sequence( prof , 1 ) ;
+    print_echiquier( ) ;
 }
 
 
@@ -591,7 +709,7 @@ void print_mouv ( tmm m[ PRISE ] , int indent )
     else if(m[0].piece == PionNO)
         printf("du pion noir va\n");
 
-    else if(m[0].piece == DameNO)
+    else if(m[0].piece == DameBL)
         printf("de la dame blanche va\n");
 
     else if(m[0].piece == DameNO)
@@ -639,7 +757,7 @@ void print_mouv ( tmm m[ PRISE ] , int indent )
 int prise_possible_avant ( int coul )
 {
     int prise_possible = NON; // initiation à NON
-    int li = 0, co = 0; // initiation des variables pour le parcour du tableau
+    int li = 0, co = 0; // initiation des variables pour le parcours du tableau
 
     // pour chaque pions et dames de la coul et tant que aucune prise possible
     while((! prise_possible) && li < N ) {
@@ -753,7 +871,7 @@ int cases_vides ( int li , int co , int num , int coul , int sens , int direct )
 /* itere_jeu déroule le jeu. */
 
 void itere_jeu ( int coul_ordinateur , int prof )
-{int minmax , cont = OUI , couleur = BLANC , depart , arrivee , ok , num_mouv , prise_ou_pas ;
+{int cont = OUI , couleur = BLANC , depart , arrivee , ok , num_mouv , prise_ou_pas ;
     int suite , lisuite , cosuite ;
     tmm depl[ PRISE ] ;
     char * texte[ 3 ] = { "NOIRS" , "" , "BLANCS" } ;
@@ -785,7 +903,7 @@ void itere_jeu ( int coul_ordinateur , int prof )
         couleur *= - 1 ;
         if ( couleur != coul_ordinateur && ! est_coince( couleur ) )
         {(void)printf( "Je calcule . . . \n" ) ;
-            minmax = minimax_call( prof , coul_ordinateur ) ;
+            minimax_call( prof , coul_ordinateur ) ;
             (void)printf( "Je joue . . . \n\n" ) ;
             print_mouvement( prof , 0 ) ;
             joue_sequence( prof , prof ) ;
@@ -796,7 +914,6 @@ void itere_jeu ( int coul_ordinateur , int prof )
 }
 
 /* On détente si la partie est terminée ou non ? */
-
 int suite_ou_pas ( void )
 {int numBL = compte_pieces( BLANC ) , numNO = compte_pieces( NOIR ) ;
     if ( numBL == 0 || est_coince( BLANC ) )
@@ -805,7 +922,6 @@ int suite_ou_pas ( void )
         (void)printf( "Les noirs perdent !\n\n" ) ;
     return( numBL && numNO && ! est_coince( BLANC ) && ! est_coince( NOIR ) ) ;
 }
-
 
 
 int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int * num_mouv ,
