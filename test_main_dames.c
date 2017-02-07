@@ -895,7 +895,7 @@ void itere_jeu ( int coul_ordinateur , int prof )
                 }
                 else
                     ok = analyse_mouvement( depart , arrivee , prise_ou_pas , couleur , & num_mouv ,
-                                            depl , & suite , & lisuite , & cosuite ) ;
+                                            depl  , & suite , & lisuite , & cosuite ) ;
             }
             while ( ! ok ) ;
             print_mouv( depl , 0 ) ;
@@ -964,7 +964,7 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
             memo ( depl , MOUV_SANS_PRISE , *num_mouv , depLi , depCo , T[depLi][depCo] , arrLi , arrCo , pieceArr , RIEN , RIEN, RIEN ) ;
 
             // effectue avec joue_mouv
-            joue_mouv(Memo[0][0]);
+            joue_mouv(depl[0]);
 
             // Rend OUI
         }
@@ -979,7 +979,18 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
                 *lisuite = arrLi+newPrise;
                 *cosuite = arrCo+newPrise;
                 mouvement_autoriser = NON;
+
             }
+            // cherche le piece prise
+            int liPr = arrLi-1*(depLi < arrLi ? 1 : -1);
+            int coPr = arrCo-1*(depCo < arrCo ? 1 : -1);
+
+            // enregistre le mouv dans memo
+
+            memo ( depl , MOUV_AVEC_PRISE , *num_mouv , depLi , depCo , T[depLi][depCo] , arrLi , arrCo , pieceArr , arrLi , arrCo, T[liPr][coPr]) ;
+            // effectue avec joue_mouv
+            joue_mouv(depl[*num_mouv]);
+
         }
 
     }
