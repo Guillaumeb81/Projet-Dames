@@ -668,21 +668,7 @@ void print_les_mouvements ( int prof )
     }
 }
 
-/* Cette fonction affiche un mouvement de la séquence optimale. Dans main_bouge_avec_prise, les deux derniers appels
-      print_mouvement( 2 , 0 ) ;
-      print_mouvement( 1 , 5 ) ;
-donnent ceci, vers la fin du fichier out_main ;
-Le mouvement du pion blanc va
-    de ( 3 , 1 ) à ( 5 , 3 ) et prise de pion en ( 4 , 2 )
-    de ( 5 , 3 ) à ( 7 , 5 ) et prise de pion en ( 6 , 4 )
-    de ( 7 , 5 ) à ( 9 , 3 ) et prise de pion en ( 8 , 4 ) avec promotion en dame
-    de ( 9 , 3 ) à ( 5 , 7 ) et prise de pion en ( 6 , 6 )
-     Le mouvement du pion noir va
-         de ( 6 , 8 ) à ( 4 , 6 ) et prise de dame en ( 5 , 7 )
-         de ( 4 , 6 ) à ( 2 , 4 ) et prise de pion en ( 3 , 5 )
-         de ( 2 , 4 ) à ( 0 , 2 ) et prise de pion en ( 1 , 3 ) avec promotion en dame
-         de ( 0 , 2 ) à ( 2 , 0 ) et prise de pion en ( 1 , 1 )
-*/
+
 
 void print_mouvement ( int prof , int indent )
 {
@@ -933,17 +919,16 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
     if ( (arrLi - depLi != arrCo - depCo) && (arrLi - depLi != -(arrCo - depCo)) )
         // les coordonnées sont sur des diagonales différentes
         mouvement_autoriser = NON;
-    printf("autorise 1 ? %d\n", mouvement_autoriser);
+  
 
     // pt depart : une piece
     if(mouvement_autoriser && T[depLi][depCo] == RIEN)
         mouvement_autoriser = NON;
-    printf("autorise 2 ? %d\n", mouvement_autoriser);
+
 
     // pt arrive : libre
     if(mouvement_autoriser && T[arrLi][arrCo] != RIEN)
         mouvement_autoriser = NON;
-    printf("autorise 3 ? %d\n", mouvement_autoriser);
 
     // promotion vers Reine
     int pieceArr = T[depLi][depCo];
@@ -951,10 +936,12 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
         pieceArr = (couleur == BLANC ? DameBL : DameNO);
     }
 
+
     if(mouvement_autoriser) {
 
         // pas de prise
         if (! prise_ou_pas) {
+
             // enregistre le mouv dans memo
             memo ( depl , MOUV_SANS_PRISE , *num_mouv , depLi , depCo , T[depLi][depCo] , arrLi , arrCo , pieceArr , RIEN , RIEN, RIEN ) ;
 
@@ -974,7 +961,6 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
                 *lisuite = arrLi+newPrise;
                 *cosuite = arrCo+newPrise;
                 mouvement_autoriser = NON;
-                printf("autorise 4 ? %d\n", mouvement_autoriser);
                 *num_mouv++;
 
             }
@@ -988,7 +974,7 @@ int analyse_mouvement ( int dep , int arr , int prise_ou_pas , int couleur , int
 
             // effectue avec joue_mouv
             joue_mouv(depl[*num_mouv]);
-            
+
 
         }
 
